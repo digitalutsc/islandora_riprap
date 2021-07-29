@@ -1,36 +1,44 @@
 islandora_riprap.media_events:
-  path: '/media/{media}/riprap'
+  path: "/media/{media}/riprap"
   defaults:
     _controller: '\Drupal\islandora_riprap\Controller\IslandoraRiprapMediaEventsController::main'
-    _title: 'Fixity Events'
+    _title: "Fixity Events"
   requirements:
-    _permission: 'manage media'
+    _permission: "manage media"
     media: \d+
 
+islandora_riprap.file_events:
+  path: "/file/{file}/riprap"
+  defaults:
+    _controller: '\Drupal\islandora_riprap\Controller\IslandoraRiprapFileEventsController::main'
+    _title: "Fixity Events (File)"
+  requirements:
+    _permission: "manage file"
+    file: \d+
+
 islandora_riprap.settings:
-  path: '/admin/config/islandora_riprap/settings'
+  path: "/admin/config/islandora_riprap/settings"
   defaults:
     _form: '\Drupal\islandora_riprap\Plugin\Form\IslandoraRiprapSettingsForm'
-    _title: 'Islandora Riprap'
+    _title: "Islandora Riprap"
   requirements:
-    _permission: 'administer site configuration'
+    _permission: "administer site configuration"
 
 islandora_riprap.events_report:
-  path: '/admin/reports/islandora_riprap'
+  path: "/admin/reports/islandora_riprap"
   defaults:
     _controller: '\Drupal\islandora_riprap\Controller\IslandoraRiprapEventsReportController::main'
-    _title: 'Failed Fixity Check Events'
+    _title: "Failed Fixity Check Events"
   requirements:
-    _permission: 'administer site configuration'
+    _permission: "administer site configuration"
 
 islandora.riprap.hash:
-  path: '/islandora_riprap/checksum'
+  path: "/islandora_riprap/checksum"
   defaults:
     _controller: '\Drupal\islandora_riprap\Controller\IslandoraRiprapGetHashController::main'
   methods: [GET]
   requirements:
     # Defined by the Islandora module.
-    _permission: 'view checksums'
+    _permission: "view checksums"
   options:
-    _auth: ['basic_auth', 'cookie', 'jwt_auth']
-
+    _auth: ["basic_auth", "cookie", "jwt_auth"]

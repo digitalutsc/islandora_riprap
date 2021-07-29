@@ -1,3 +1,6 @@
 services:
   islandora_riprap.riprap:
     class: Drupal\islandora_riprap\Riprap\Riprap
+
+  islandora_riprap.riprap_files:
+    class: Drupal\islandora_riprap\Riprap\RiprapFiles

@@ -10,25 +10,36 @@ use EasyRdf\Graph;
 /**
  * Implements hook_theme().
  */
-function islandora_riprap_theme($existing, $type, $theme, $path) {
+function islandora_riprap_theme($existing, $type, $theme, $path)
+{
   return [
-    'islandora_riprap_summary' => [
-      'variables' => ['content' => NULL, 'outcome' => NULL, 'mid' => NULL],
+    "islandora_riprap_summary" => [
+      "variables" => ["content" => null, "outcome" => null, "mid" => null],
     ],
-    'islandora_riprap_media_events' => [
-      'variables' => [
-        'report' => NULL,
-        'mid' => NULL,
-        'binary_resource_url' => NULL,
+    "islandora_riprap_file_summary" => [
+      "variables" => ["content" => null, "outcome" => null, "fid" => null],
+    ],
+    "islandora_riprap_media_events" => [
+      "variables" => [
+        "report" => null,
+        "mid" => null,
+        "binary_resource_url" => null,
       ],
-      'variables' => [
-        'report' => NULL,
-        'mid' => NULL,
-        'binary_resource_url' => NULL,
+      "variables" => [
+        "report" => null,
+        "mid" => null,
+        "binary_resource_url" => null,
       ],
     ],
-    'islandora_riprap_events_report' => [
-      'variables' => [],
+    "islandora_riprap_file_events" => [
+      "variables" => [
+        "report" => null,
+        "fid" => null,
+        "binary_resource_url" => null,
+      ],
+    ],
+    "islandora_riprap_events_report" => [
+      "variables" => [],
     ],
   ];
 }
@@ -36,91 +47,155 @@ function islandora_riprap_theme($existing, $type, $theme, $path) {
 /**
  * Default preprocessor function for the islandora_riprap_theme hook.
  */
-function template_preprocess_islandora_riprap_summary(&$variables) {
-  $variables['attributes'] = [
-    'class' => [$variables['outcome']],
+function template_preprocess_islandora_riprap_summary(&$variables)
+{
+  $variables["attributes"] = [
+    "class" => [$variables["outcome"]],
+  ];
+}
+
+/**
+ * Default preprocessor function for the islandora_riprap_theme hook
+ */
+function template_preprocess_islandora_riprap_file_summary(&$variables)
+{
+  $variables["attributes"] = [
+    "class" => [$variables["outcome"]],
   ];
 }
 
 /**
  * Default preprocessor function for the islandora_riprap_theme hook.
  */
-function template_preprocess_islandora_riprap_media_events(&$variables) {
-  $variables['attributes'] = [
-    'id' => ['islandora_riprap_media_events'],
+function template_preprocess_islandora_riprap_media_events(&$variables)
+{
+  $variables["attributes"] = [
+    "id" => ["islandora_riprap_media_events"],
   ];
 }
 
 /**
  * Default preprocessor function for the islandora_riprap_theme hook.
  */
-function template_preprocess_islandora_riprap_events_report(&$variables) {
-  $variables['attributes'] = [
-    'id' => ['islandora_riprap_events_report'],
+function template_preprocess_islandora_riprap_file_events(&$variable)
+{
+  $variables["attributes"] = [
+    "id" => ["islandora_riprap_file_events"],
+  ];
+}
+
+/**
+ * Default preprocessor function for the islandora_riprap_theme hook.
+ */
+function template_preprocess_islandora_riprap_events_report(&$variables)
+{
+  $variables["attributes"] = [
+    "id" => ["islandora_riprap_events_report"],
   ];
 }
 
 /**
  * Implements hook_page_attachments().
  */
-function islandora_riprap_page_attachments(array &$attachments) {
-  $config = \Drupal::config('islandora_riprap.settings');
-  $current_path = \Drupal::service('path.current')->getPath();
+function islandora_riprap_page_attachments(array &$attachments)
+{
+  $config = \Drupal::config("islandora_riprap.settings");
+  $current_path = \Drupal::service("path.current")->getPath();
 
-  $path_args = explode('/', ltrim($current_path, '/'));
+  $path_args = explode("/", ltrim($current_path, "/"));
   // E.g., the Manage Media View for each Islandora object.
   if (count($path_args) >= 3 && $path_args[0] == 'node' && $path_args[2] == 'media') {
     $attachments['#attached']['library'][] = 'islandora_riprap/islandora_riprap_media';
   }
 
-  if ($current_path == '/admin/reports/islandora_riprap') {
-    $riprap_utils = \Drupal::service('islandora_riprap.riprap');
-    if ($config->get('use_sample_failed_fixity_events')) {
+  // E.g., the Media & File View (NOTE: updated to remove the 'node' dependcy for Drupal)
+  if (
+    count($path_args) >= 3 &&
+    ($path_args[2] == "media" || $path_args[2] == "files")
+  ) {
+    $attachments["#attached"]["library"][] =
+      "islandora_riprap/islandora_riprap_media";
+  }
+
+  if ($current_path == "/admin/reports/islandora_riprap") {
+    $riprap_utils = \Drupal::service("islandora_riprap.riprap");
+    if ($config->get("use_sample_failed_fixity_events")) {
       $riprap_data = $riprap_utils->getSampleFailedFixityEventsReportData();
       $dataset = new StdClass();
       $dataset->data = array_values($riprap_data);
       $total_failed_events = array_sum($dataset->data);
-      $dataset->label = t("@total (sample) failed fixity check events, broken down by month", ['@total' => $total_failed_events]);
-      $dataset->borderColor = 'red';
-      $dataset->pointBackgroundColor = 'red';
+      $dataset->label = t(
+        "@total (sample) failed fixity check events, broken down by month",
+        ["@total" => $total_failed_events]
+      );
+      $dataset->borderColor = "red";
+      $dataset->pointBackgroundColor = "red";
       $dataset->borderWidth = 1;
       $dataset->pointRadius = 5;
-      $dataset->fill = FALSE;
+      $dataset->fill = false;
       $dataset->lineTension = 0;
-      $line_chart_data = ['labels' => array_keys($riprap_data), 'datasets' => [$dataset]];
-      $attachments['#attached']['library'][] = 'islandora_riprap/islandora_riprap_chart';
-      $attachments['#attached']['drupalSettings']['islandora_riprap']['chart_data'] = $line_chart_data;
-      \Drupal::messenger()->addMessage(t('(Sample) failed fixity check events found. See monthly summary below.'), 'warning');
+      $line_chart_data = [
+        "labels" => array_keys($riprap_data),
+        "datasets" => [$dataset],
+      ];
+      $attachments["#attached"]["library"][] =
+        "islandora_riprap/islandora_riprap_chart";
+      $attachments["#attached"]["drupalSettings"]["islandora_riprap"][
+        "chart_data"
+      ] = $line_chart_data;
+      \Drupal::messenger()->addMessage(
+        t(
+          "(Sample) failed fixity check events found. See monthly summary below."
+        ),
+        "warning"
+      );
       return;
-    }
-    else {
+    } else {
       $riprap_data = $riprap_utils->getFailedFixityEventsReportData();
       $total_failed_events = array_sum(array_values($riprap_data));
     }
 
     if ($total_failed_events == 0) {
-      $attachments['#attached']['library'][] = 'islandora_riprap/islandora_riprap_no_failed_fixity_events';
-      \Drupal::logger('islandora_riprap')->info(t('Failed fixity check report has found no events.'));
-      \Drupal::messenger()->addMessage(t('No failed fixity events found.'), 'status');
-    }
-    else {
-      $attachments['#attached']['library'][] = 'islandora_riprap/islandora_riprap_chart';
+      $attachments["#attached"]["library"][] =
+        "islandora_riprap/islandora_riprap_no_failed_fixity_events";
+      \Drupal::logger("islandora_riprap")->info(
+        t("Failed fixity check report has found no events.")
+      );
+      \Drupal::messenger()->addMessage(
+        t("No failed fixity events found."),
+        "status"
+      );
+    } else {
+      $attachments["#attached"]["library"][] =
+        "islandora_riprap/islandora_riprap_chart";
       $dataset = new StdClass();
       $dataset->data = array_values($riprap_data);
-      $dataset->label = t("@total failed fixity check events, broken down by month", ['@total' => $total_failed_events]);
-      $dataset->borderColor = 'red';
-      $dataset->pointBackgroundColor = 'red';
+      $dataset->label = t(
+        "@total failed fixity check events, broken down by month",
+        ["@total" => $total_failed_events]
+      );
+      $dataset->borderColor = "red";
+      $dataset->pointBackgroundColor = "red";
       $dataset->borderWidth = 1;
       $dataset->pointRadius = 5;
-      $dataset->fill = FALSE;
+      $dataset->fill = false;
       $dataset->lineTension = 0;
       $line_chart_data = [
-        'labels' => array_keys($riprap_data),
-        'datasets' => [$dataset],
+        "labels" => array_keys($riprap_data),
+        "datasets" => [$dataset],
       ];
-      $attachments['#attached']['drupalSettings']['islandora_riprap']['chart_data'] = $line_chart_data;
-      \Drupal::messenger()->addMessage(t('Failed fixity check events found. See monthly summary below.'), 'warning');
-      \Drupal::logger('islandora_riprap')->warning(t('Failed fixity check report has found @total events.', ['@total' => $total_failed_events]));
+      $attachments["#attached"]["drupalSettings"]["islandora_riprap"][
+        "chart_data"
+      ] = $line_chart_data;
+      \Drupal::messenger()->addMessage(
+        t("Failed fixity check events found. See monthly summary below."),
+        "warning"
+      );
+      \Drupal::logger("islandora_riprap")->warning(
+        t("Failed fixity check report has found @total events.", [
+          "@total" => $total_failed_events,
+        ])
+      );
     }
   }
 }
@@ -128,25 +203,28 @@ function islandora_riprap_page_attachments(array &$attachments) {
 /**
  * Implements hook_cron().
  */
-function islandora_riprap_cron() {
-  $config = \Drupal::config('islandora_riprap.settings');
-  $riprap = \Drupal::service('islandora_riprap.riprap');
+function islandora_riprap_cron()
+{
+  $config = \Drupal::config("islandora_riprap.settings");
+  $riprap = \Drupal::service("islandora_riprap.riprap");
 
-  if (!$config->get('execute_riprap_in_cron')) {
+  if (!$config->get("execute_riprap_in_cron")) {
     return;
   }
 
-  if ($config->get('riprap_mode') == 'local') {
+  if ($config->get("riprap_mode") == "local") {
     $success = $riprap->executeRiprapCheckFixity();
   }
 
   if ($success) {
-    \Drupal::logger('islandora_riprap')->info(t('Riprap successfully ran from Drupal cron.'));
+    \Drupal::logger("islandora_riprap")->info(
+      t("Riprap successfully ran from Drupal cron.")
+    );
+  } else {
+    \Drupal::logger("islandora_riprap")->error(
+      t("Riprap failed to run from Drupal cron.")
+    );
   }
-  else {
-    \Drupal::logger('islandora_riprap')->error(t('Riprap failed to run from Drupal cron.'));
-  }
-
 }
 
 /**
@@ -157,23 +235,29 @@ function islandora_riprap_cron() {
  * @param string $turtle
  *   The serialized Turtle.
  */
-function islandora_riprap_islandora_premis_turtle_alter($nid, &$turtle) {
-  $config = \Drupal::config('islandora_riprap.settings');
-  $riprap = \Drupal::service('islandora_riprap.riprap');
-  $islandora_riprap_utils = \Drupal::service('islandora_riprap.utils');
-  $media_source = \Drupal::service('islandora.media_source_service');
+function islandora_riprap_islandora_premis_turtle_alter($nid, &$turtle)
+{
+  $config = \Drupal::config("islandora_riprap.settings");
+  $riprap = \Drupal::service("islandora_riprap.riprap");
+  $islandora_riprap_utils = \Drupal::service("islandora_riprap.utils");
+  $media_source = \Drupal::service("islandora.media_source_service");
 
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  $node = \Drupal::entityTypeManager()
+    ->getStorage("node")
+    ->load($nid);
   $media = $riprap->getMedia($node);
 
   if (count($media) > 0) {
     foreach ($media as $medium) {
       $file = $media_source->getSourceFile($medium);
-      if ($config->get('use_drupal_urls')) {
-        $binary_resource_url = $islandora_riprap_utils->getLocalUrl($medium->id());
-      }
-      else {
-        $binary_resource_url = $islandora_riprap_utils->getFedoraUrl($medium->id());
+      if ($config->get("use_drupal_urls")) {
+        $binary_resource_url = $islandora_riprap_utils->getLocalUrl(
+          $medium->id()
+        );
+      } else {
+        $binary_resource_url = $islandora_riprap_utils->getFedoraUrl(
+          $medium->id()
+        );
       }
 
       // Create the graph from existing Turtle.
@@ -181,83 +265,103 @@ function islandora_riprap_islandora_premis_turtle_alter($nid, &$turtle) {
       $graph->parse($turtle);
 
       // Get fixity events and express them as PREMIS RDF.
-      $riprap_events = $riprap->getEvents(['output_format' => 'json', 'resource_id' => $binary_resource_url]);
-      $riprap_events = json_decode($riprap_events, TRUE);
+      $riprap_events = $riprap->getEvents([
+        "output_format" => "json",
+        "resource_id" => $binary_resource_url,
+      ]);
+      $riprap_events = json_decode($riprap_events, true);
       foreach ($riprap_events as $event) {
-        $graph->add($binary_resource_url, 'premis:fixity', $event['event_uuid']);
+        $graph->add(
+          $binary_resource_url,
+          "premis:fixity",
+          $event["event_uuid"]
+        );
       }
 
       foreach ($riprap_events as $event) {
-        $fixity_event = $graph->resource($event['event_uuid'], ['http://id.loc.gov/vocabulary/preservation/eventType/fix', 'crypHashFunc:' . $event['digest_algorithm']]);
-        $fixity_event->set('rdf:value', $event['digest_value']);
-        $fixity_event->set('dc:created', $event['timestamp']);
-        $fixity_event->set('premis:outcome', $event['event_outcome']);
+        $fixity_event = $graph->resource($event["event_uuid"], [
+          "http://id.loc.gov/vocabulary/preservation/eventType/fix",
+          "crypHashFunc:" . $event["digest_algorithm"],
+        ]);
+        $fixity_event->set("rdf:value", $event["digest_value"]);
+        $fixity_event->set("dc:created", $event["timestamp"]);
+        $fixity_event->set("premis:outcome", $event["event_outcome"]);
       }
-      $turtle = $graph->serialise('turtle');
+      $turtle = $graph->serialise("turtle");
     }
   }
-
 }
 
 /**
  * Implements hook_requirements().
  */
-function islandora_riprap_requirements($phase) {
+function islandora_riprap_requirements($phase)
+{
   $requirements = [];
-  $riprap_utils = \Drupal::service('islandora_riprap.riprap');
+  $riprap_utils = \Drupal::service("islandora_riprap.riprap");
 
-  if ($phase == 'runtime') {
-    $config = \Drupal::config('islandora_riprap.settings');
-    $mode = $config->get('riprap_mode');
+  if ($phase == "runtime") {
+    $config = \Drupal::config("islandora_riprap.settings");
+    $mode = $config->get("riprap_mode");
 
     // If using Riprap as a remote microserive,
     // check whether Riprap's endpoint is available.
-    if ($mode == 'remote') {
-      $riprap_endpoint = $config->get('riprap_rest_endpoint');
+    if ($mode == "remote") {
+      $riprap_endpoint = $config->get("riprap_rest_endpoint");
 
       $riprap_response_code = 0;
       try {
         $client = \Drupal::httpClient();
         // Assumes Riprap requires no authentication
         // (e.g., it's behind the Symfony or other firewall).
-        $response = $client->request('HEAD', $riprap_endpoint);
+        $response = $client->request("HEAD", $riprap_endpoint);
         $riprap_response_code = $response->getStatusCode();
-      }
-      catch (Exception $e) {
-        \Drupal::logger('islandora_riprap')->error($e->getMessage());
-      }
-      finally {
+      } catch (Exception $e) {
+        \Drupal::logger("islandora_riprap")->error($e->getMessage());
+      } finally {
         if ($riprap_response_code == 200) {
-          $requirements['islandora_riprap_microservice_available'] = [
-            'title' => t("Islandora Riprap"),
-            'description' => t("Riprap is running at @endpoint. @chart_link.", ['@endpoint' => $riprap_endpoint, '@chart_link' => $riprap_utils->getLinkToFailedFixityEventsReport()]),
-            'severity' => REQUIREMENT_INFO,
+          $requirements["islandora_riprap_microservice_available"] = [
+            "title" => t("Islandora Riprap"),
+            "description" => t("Riprap is running at @endpoint. @chart_link.", [
+              "@endpoint" => $riprap_endpoint,
+              "@chart_link" => $riprap_utils->getLinkToFailedFixityEventsReport(),
+            ]),
+            "severity" => REQUIREMENT_INFO,
           ];
-        }
-        else {
-          $requirements['islandora_riprap_microservice_available'] = [
-            'title' => t("Islandora Riprap"),
-            'description' => t("Riprap not found or is not running at @endpoint", ['@endpoint' => $riprap_endpoint]),
-            'severity' => REQUIREMENT_ERROR,
+        } else {
+          $requirements["islandora_riprap_microservice_available"] = [
+            "title" => t("Islandora Riprap"),
+            "description" => t(
+              "Riprap not found or is not running at @endpoint",
+              ["@endpoint" => $riprap_endpoint]
+            ),
+            "severity" => REQUIREMENT_ERROR,
           ];
         }
       }
     }
 
-    if ($mode == 'local') {
-      $riprap_directory = $config->get('riprap_local_directory');
+    if ($mode == "local") {
+      $riprap_directory = $config->get("riprap_local_directory");
       if (file_exists($riprap_directory)) {
-        $requirements['riprap_directory_exists'] = [
-          'title' => t("Islandora Riprap"),
-          'description' => t("Riprap is installed at @directory. @chart_link.", ['@directory' => $riprap_directory, '@chart_link' => $riprap_utils->getLinkToFailedFixityEventsReport()]),
-          'severity' => REQUIREMENT_INFO,
+        $requirements["riprap_directory_exists"] = [
+          "title" => t("Islandora Riprap"),
+          "description" => t(
+            "Riprap is installed at @directory. @chart_link.",
+            [
+              "@directory" => $riprap_directory,
+              "@chart_link" => $riprap_utils->getLinkToFailedFixityEventsReport(),
+            ]
+          ),
+          "severity" => REQUIREMENT_INFO,
         ];
-      }
-      else {
-        $requirements['riprap_directory_exists'] = [
-          'title' => t("Islandora Riprap"),
-          'description' => t("Riprap is not installed at @directory", ['@directory' => $riprap_directory]),
-          'severity' => REQUIREMENT_ERROR,
+      } else {
+        $requirements["riprap_directory_exists"] = [
+          "title" => t("Islandora Riprap"),
+          "description" => t("Riprap is not installed at @directory", [
+            "@directory" => $riprap_directory,
+          ]),
+          "severity" => REQUIREMENT_ERROR,
         ];
       }
     }

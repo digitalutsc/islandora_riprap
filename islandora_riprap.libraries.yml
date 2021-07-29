@@ -13,7 +13,8 @@ islandora_riprap_no_failed_fixity_events:
 islandora_riprap_chart:
   version: 1.x
   js:
-    https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js: { type: external }
+    https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js:
+      { type: external }
     js/islandora_riprap_chart.js: {}
   dependencies:
     - core/jquery
