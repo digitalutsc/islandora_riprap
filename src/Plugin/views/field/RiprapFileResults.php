@@ -25,6 +25,10 @@ class RiprapFileResults extends FieldPluginBase
   }
 
   /**
+   * Used for sorting the events from Riprap by decesending time
+   */
+
+  /**
    * {@inheritdoc}
    */
   public function render(ResultRow $value)
@@ -54,7 +58,6 @@ class RiprapFileResults extends FieldPluginBase
     $num_events = $config->get("number_of_events") ?: 10;
     $riprap_output = $riprap->getEvents([
       "limit" => $num_events,
-      "sort" => "desc",
       "output_format" => "json",
       "resource_id" => $binary_resource_url,
     ]);
@@ -75,10 +78,11 @@ class RiprapFileResults extends FieldPluginBase
       $outcome = "notinfedora";
       $fid = null;
     } else {
-      if ($failed_events == 0) {
-        $outcome = "success";
-      } else {
+      $last_event = end($events);
+      if ($last_event["event_outcome"] == "fail") {
         $outcome = "fail";
+      } else {
+        $outcome = "success";
       }
     }
 
