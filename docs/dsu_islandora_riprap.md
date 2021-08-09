@@ -8,7 +8,7 @@ Extended off [Mark Jordan's Islandora Riprap Module](https://github.com/mjordan/
 1. Git clone the module repo 
 1. Enable the module through the extend menu
 1. Go to Drupal's "Configuration" menu.
-   1. In the "Islandora" section, click on the "Fixity auditing" link.
+   1. In the "System" section, click on the "Fixity auditing" link.
    1. Adjust your config options.
    1. For local mode, set the following:
        - *Absolute Path to Riprap Installation Dir*: /var/www/drupalvm/riprap
@@ -23,6 +23,8 @@ Extended off [Mark Jordan's Islandora Riprap Module](https://github.com/mjordan/
     1. Click on "Apply (this display)".
     1. Optionally, you can locate the new "Fixity Auditing" field to any position you want in the Media table.
     1. Click on the "Save" button to save the change to the View.
+
+---
 
 ### New HTML Twig Files
 
