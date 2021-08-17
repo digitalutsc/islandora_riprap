@@ -22,7 +22,8 @@ Extended off [Mark Jordan's Islandora Riprap Module](https://github.com/mjordan/
     1. Click on "Apply (this display)".
     1. Change the label if you want.
     1. Click on "Apply (this display)".
-    1. Optionally, you can locate the new "Fixity Auditing" field to any position you want in the Media table.
+        1. When presented select `Aggregation type: Group results together`
+    1. Optionally, you can locate the new "Fixity Auditing" field to any position you want in the Files table.
     1. Click on the "Save" button to save the change to the View.
 
 ## Prerequisites/Requirements 
