@@ -62,7 +62,6 @@ class RiprapFileResults extends FieldPluginBase
             "resource_id" => $binary_resource_url,
         ]);
         $events = json_decode($riprap_output, true);
-        print_r($events);
 
         // Look for events with an 'event_outcome' of 'fail'.
         $failed_events = 0;
