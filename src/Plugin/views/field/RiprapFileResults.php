@@ -62,10 +62,11 @@ class RiprapFileResults extends FieldPluginBase
             "resource_id" => $binary_resource_url,
         ]);
         $events = json_decode($riprap_output, true);
+        print_r($events);
 
         // Look for events with an 'event_outcome' of 'fail'.
         $failed_events = 0;
-        if (count($events) > 0) {
+        if ($events) {
             foreach ($events as $event) {
                 if ($event["event_outcome"] == "fail") {
                     $failed_events++;
@@ -78,7 +79,7 @@ class RiprapFileResults extends FieldPluginBase
             $outcome = "notinfedora";
             $fid = null;
         } else {
-            if (count($events) > 0) {
+            if ($events) {
                 $last_event = end($events);
                 if ($last_event["event_outcome"] == "fail") {
                     $outcome = "fail";
@@ -88,7 +89,7 @@ class RiprapFileResults extends FieldPluginBase
             }
         }
 
-        if (count($events) == 0) {
+        if (!$events) {
             $outcome = "noevents";
             // Show fid and indicate that file is not in
             // Riprap (e.g., 'No Riprap events for $fid').
