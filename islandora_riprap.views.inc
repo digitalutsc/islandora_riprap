@@ -26,4 +26,13 @@ function islandora_riprap_views_data_alter(array &$data) {
       'id' => 'riprap_file_results',
     ],
   ];
+
+  $data['file_managed']['riprap_success'] = [
+    'title' => t('Checksum Result'),
+    'help' => t('Show outcome of the checksum checking.'),
+    'field' => [
+      'id' => 'riprap_success_failure',
+    ],
+  ];
+   
 }

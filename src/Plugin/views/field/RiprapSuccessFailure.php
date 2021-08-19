@@ -10,9 +10,9 @@ use Drupal\views\ResultRow;
  *
  * @ingroup views_field_handlers
  *
- * @ViewsField("riprap_file_results")
+ * @ViewsField("riprap_success_failure")
  */
-class RiprapFileResults extends FieldPluginBase
+class RiprapSuccessFailure extends FieldPluginBase
 {
     /**
      * Leave empty to avoid a query on this field.
@@ -47,10 +47,9 @@ class RiprapFileResults extends FieldPluginBase
             $binary_resource_url = $riprap->getFedoraUrl($fid);
             if (!$binary_resource_url) {
                 return [
-                    "#theme" => "islandora_riprap_file_summary",
-                    "#content" => "Not in Fedora",
+                    "#theme" => "islandora_riprap_success_fail",
+                    "#content" => "N/A",
                     "#outcome" => null,
-                    "#fid" => null,
                 ];
             }
         }
@@ -76,7 +75,6 @@ class RiprapFileResults extends FieldPluginBase
         // Set flag in markup so that our Javascript can set the color.
         if ($binary_resource_url == "Not in Fedora") {
             $outcome = "notinfedora";
-            $fid = null;
         } else {
             if ($events) {
                 $last_event = end($events);
@@ -96,11 +94,11 @@ class RiprapFileResults extends FieldPluginBase
                 "No Riprap events for " . $binary_resource_url;
 
             return [
-                "#theme" => "islandora_riprap_file_summary",
-                "#content" => $binary_resource_url,
+                "#theme" => "islandora_riprap_success_fail",
+                "#content" => "N/A",
                 "#outcome" => null,
-                "#fid" => null,
             ];
+
         }
 
         // Not a Riprap event, but output that indicates Riprap
@@ -114,12 +112,18 @@ class RiprapFileResults extends FieldPluginBase
             $outcome = "riprapnotfound";
         }
 
-
+        if(strcmp($outcome, "success") == 0){
+            return [
+                "#theme" => "islandora_riprap_success_fail",
+                "#content" => "Success",
+                "#outcome" => "Success",
+            ];
+        }
         return [
-            "#theme" => "islandora_riprap_file_summary",
-            "#content" => $binary_resource_url,
-            "#outcome" => $outcome,
-            "#fid" => $fid,
+            "#theme" => "islandora_riprap_success_fail",
+            "#content" => "Fail",
+            "#outcome" => "Fail",
         ];
+
     }
 }

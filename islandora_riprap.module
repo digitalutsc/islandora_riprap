@@ -19,6 +19,9 @@ function islandora_riprap_theme($existing, $type, $theme, $path)
     "islandora_riprap_file_summary" => [
       "variables" => ["content" => null, "outcome" => null, "fid" => null],
     ],
+    "islandora_riprap_success_fail" => [
+      "variables" => ["content" => null, "outcome" => null],
+    ],
     "islandora_riprap_media_events" => [
       "variables" => [
         "report" => null,
@@ -58,6 +61,16 @@ function template_preprocess_islandora_riprap_summary(&$variables)
  * Default preprocessor function for the islandora_riprap_theme hook
  */
 function template_preprocess_islandora_riprap_file_summary(&$variables)
+{
+  $variables["attributes"] = [
+    "class" => [$variables["outcome"]],
+  ];
+}
+
+/**
+ * Default preprocessor function for the islandora_riprap_theme hook
+ */
+function template_preprocess_islandora_riprap_success_fail(&$variables)
 {
   $variables["attributes"] = [
     "class" => [$variables["outcome"]],
