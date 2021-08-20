@@ -12,9 +12,11 @@ Extended off [Mark Jordan's Islandora Riprap Module](https://github.com/mjordan/
    1. Adjust your config options.
        - Select `Use Drupal URLs for media instead of Fedora URLs. Check this box only if you are not using Fedora.` for a pure Drupal module
        - Select `Execute Riprap during Drupal cron runs. Only applies to "local" mode.` for riprap to run everytime cron is executed
-   1. For local mode, set the following:
-       - *Absolute Path to Riprap Installation Dir*: The absolute path to the Riprap folder (For ex: `/var/www/drupalvm/riprap`)
-       - *Absolute Path to the YAML settings file*: The absolute path to the config file for Riprap (For ex: `/var/www/drupalvm/riprap/sample_islandora_config_fetch_digest_from_drupal.yml`)
+       1. For **local mode**, set the following:
+           - *Absolute Path to Riprap Installation Dir*: The absolute path to the Riprap folder (For ex: `/var/www/drupalvm/riprap`)
+           - *Absolute Path to the YAML settings file*: The absolute path to the config file for Riprap (For ex: `/var/www/drupalvm/riprap/sample_islandora_config_fetch_digest_from_drupal.yml`)
+        1. For **remote mode**, set the following:
+           - *Riprap microservice REST endpoint*: Set this to be the address of the remote server being ran from the Riprap folder
 1.  Add the "Fixity Auditing" field to the "Files" View (like you would add any other field to a view):
     1. In your list of Views ("Admin > Structure > Views"), click on the "Edit" button for the "Files" View.
     1. In the "Page" display, click on the "Add" Fields button.
@@ -25,6 +27,7 @@ Extended off [Mark Jordan's Islandora Riprap Module](https://github.com/mjordan/
         1. When presented select `Aggregation type: Group results together`
     1. Optionally, you can locate the new "Fixity Auditing" field to any position you want in the Files table.
     1. Click on the "Save" button to save the change to the View.
+1. Repeat the above step to add the "Checksum Result" field to the "Files" View (like you would add any other field to a view)
 
 ## Prerequisites/Requirements 
 To use all the existing REST export endpoints with Riprap, the **HTTP Basic Authentication** needs to be enabled to allow for comunication between Riprap and the Drupal webpage.  
