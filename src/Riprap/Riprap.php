@@ -47,11 +47,22 @@ class Riprap {
       // Assumes Riprap requires no authentication
       // (e.g., it's behind the Symfony or other firewall).
       $client = \Drupal::httpClient();
-      $options = [
-        'http_errors' => FALSE,
-        'headers' => ['Resource-ID' => $resource_id],
-        'query' => $options,
-      ];
+
+      // Added to fix https://github.com/digitalutsc/islandora_lite_docs/issues/36
+      if (isset($resource_id)) {
+        $options = [
+          'http_errors' => FALSE,
+          'headers' => ['Resource-ID' => $resource_id],
+          'query' => $options,
+        ];
+      }
+      else {
+        $options = [
+          'http_errors' => FALSE,
+          'query' => $options,
+        ];
+      }
+
       $response = $client->request('GET', $this->riprap_endpoint, $options);
       $code = $response->getStatusCode();
       // Note: Riprap returns a 200 even if there are no events for
