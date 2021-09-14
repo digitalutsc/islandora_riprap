@@ -299,7 +299,7 @@ class Riprap {
         $months[$month]++;
       }
       else {
-        $months[$month] = 0;
+        $months[$month] = 1;
       }
     }
     return $months;
